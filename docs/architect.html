@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Configure a multi-bank parallel-bar eNVM in-memory-computing architecture and explore how bank dimension and non-idealities affect SNDR and workload accuracy." />
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+    <title>Multi-bank Architect · Parallel-bar IMC</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Parallel-bar IMC overview"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+        <nav id="site-nav" class="site-nav" aria-label="Parallel-bar design method"><a href="index.html">Overview</a><a href="method.html">Method</a><a href="architect.html" aria-current="page">Architect</a><a href="cartoon.html">Cartoon</a><a href="code.html">Model</a><a href="paper.html">Case study</a><a class="nav-repository" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></nav>
+        <a class="header-repo" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="page-hero architect-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <p class="eyebrow green">System explorer · Parallel-bar fabric</p>
+            <h1>Build a multi-bank parallel-bar IMC. <span class="accent-green">Check its accuracy.</span></h1>
+            <p class="hero-summary">Choose an eNVM device and an accurate local parallel-bar bank, distribute a large dot product across many banks, and inspect how device, array, sensing, and conversion non-idealities constrain the result.</p>
+            <div class="hero-actions"><a class="button button-green" href="#architect-lab">Configure the chip</a><a class="button button-secondary" href="method.html">Read the device-agnostic method</a></div>
+          </div>
+          <aside class="chip-preview" aria-label="A four-stage parallel pipeline feeding a multi-bank eNVM compute fabric">
+            <div class="chip-preview-head"><span>Recommended fabric</span><strong>Parallel-bar bank pipeline</strong></div>
+            <ol class="pipeline-strip" aria-label="Pipeline stages"><li>Dispatch</li><li>Bank compute</li><li>Sense + ADC</li><li>Digital reduce</li></ol>
+            <div class="hero-bank-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <p>Keep each local dot product small enough for useful SNDR, then add banks to cover the workload dimension.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section cartoon-teaser-section">
+        <div class="container cartoon-teaser">
+          <div class="content-copy">
+            <p class="section-kicker green">Build the error story</p>
+            <h2>See how ideal current levels become overlapping distributions.</h2>
+            <p>A seven-stage cartoon introduces conductance variation, parasitics, sensing mismatch, and ADC noise one at a time—then connects the remaining separation to the SNDR used below.</p>
+            <a class="button button-green" href="cartoon.html">Watch the step-by-step cartoon →</a>
+          </div>
+          <a class="cartoon-teaser-media" href="cartoon.html" aria-label="Open the step-by-step current-distribution cartoon">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="assets/histogram-cartoon/step-7.png" />
+              <img src="assets/histogram-cartoon/histogram-nonidealities.gif" alt="Animated current distributions broadening as resistive IMC non-idealities are added." />
+            </picture>
+            <span>Open all seven stages <b aria-hidden="true">↗</b></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="architect-lab">
+        <div class="container">
+          <div class="section-heading"><p class="section-kicker green">Interactive architecture map</p><h2>Size the local bank first. Scale the workload second.</h2><p>The four-coordinate method links device behavior and bank-level SNDR to workload accuracy. This explorer applies that reasoning to an illustrative multi-bank floorplan with digital accumulation.</p></div>
+
+          <div class="architect-lab">
+            <form class="architect-controls" id="architect-form">
+              <fieldset>
+                <legend>Bank and workload</legend>
+                <label class="control-field" for="sim-device"><span>eNVM device profile</span><select id="sim-device" name="device"><option value="reram" selected>ReRAM · balanced conductance</option><option value="mram">MRAM · high conductance</option><option value="fefet">FeFET · high contrast</option><option value="custom">Custom eNVM · normalized profile</option></select></label>
+                <label class="control-field" for="sim-workload"><span>Workload dot-product dimension</span><select id="sim-workload" name="workload"><option value="144">144 · ResNet block 1</option><option value="288">288 · ResNet block 2</option><option value="576" selected>576 · ResNet block 3</option><option value="1024">1,024 · large layer</option><option value="4096">4,096 · very large layer</option></select></label>
+                <label class="control-field" for="sim-bank-n"><span>Local bank dimension N</span><select id="sim-bank-n" name="bankN"><option value="9" selected>9 · smallest local bank</option><option value="36">36 · balanced bank count</option><option value="72">72 · higher local utilization</option></select></label>
+                <label class="control-field range-field" for="sim-banks"><span>Physical banks <output id="sim-banks-value" for="sim-banks">64</output></span><input id="sim-banks" name="banks" type="range" min="4" max="128" step="4" value="64" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>Non-ideality coordinates</legend>
+                <label class="control-field range-field" for="sim-adc-bits"><span>ADC precision <output id="sim-adc-bits-value" for="sim-adc-bits">7 b</output></span><input id="sim-adc-bits" name="adcBits" type="range" min="4" max="8" step="1" value="7" /></label>
+                <label class="control-field range-field" for="sim-variation"><span>Conductance variation <output id="sim-variation-value" for="sim-variation">5%</output></span><input id="sim-variation" name="variation" type="range" min="2" max="20" step="1" value="5" /></label>
+                <label class="control-field range-field" for="sim-wire"><span>Wire-parasitic load <output id="sim-wire-value" for="sim-wire">25%</output></span><input id="sim-wire" name="wire" type="range" min="0" max="100" step="5" value="25" /></label>
+                <label class="control-field range-field" for="sim-mismatch"><span>Sensing mismatch <output id="sim-mismatch-value" for="sim-mismatch">2%</output></span><input id="sim-mismatch" name="mismatch" type="range" min="0" max="10" step="0.5" value="2" /></label>
+                <label class="control-field range-field" for="sim-adc-noise"><span>ADC-noise load <output id="sim-adc-noise-value" for="sim-adc-noise">20%</output></span><input id="sim-adc-noise" name="adcNoise" type="range" min="0" max="100" step="5" value="20" /></label>
+              </fieldset>
+
+              <button class="button button-green" type="submit">Evaluate parallel-bar fabric</button>
+              <p class="control-note">The percentage controls are normalized design-exploration coordinates, not foundry parameters.</p>
+            </form>
+
+            <div class="sim-chip" aria-live="polite">
+              <div class="sim-chip-head"><div><span id="sim-chip-kicker">ReRAM · N = 9</span><h3>Parallel multi-bank compute fabric</h3></div><strong id="sim-status">Accuracy-oriented</strong></div>
+              <ol class="sim-pipeline" aria-label="Active compute pipeline"><li><span>01</span>Dispatch tiles</li><li><span>02</span>Parallel banks</li><li><span>03</span>Sense + ADC</li><li><span>04</span>Digital reduction</li></ol>
+              <div class="sim-bank-grid" id="sim-bank-grid" aria-label="Representative physical bank map"></div>
+              <div class="sim-bank-legend"><span><i class="active"></i>Mapped this wave</span><span><i></i>Available</span><strong id="sim-bank-caption">Showing 24 of 64 physical banks</strong></div>
+
+              <div class="sim-results">
+                <div><span>Estimated bank SNDR</span><strong id="sim-sndr">22.0 dB</strong></div>
+                <div><span id="sim-accuracy-label">Illustrative CIFAR-10 accuracy</span><strong id="sim-accuracy">84.5%</strong></div>
+                <div><span>Mapping waves</span><strong id="sim-waves">1</strong></div>
+              </div>
+              <p class="sim-mapping" id="sim-mapping">576 operations map to 64 banks of dimension 9 in one parallel wave.</p>
+              <p class="sim-advice" id="sim-advice"><strong>Design reading:</strong> This point reaches the reported accuracy-oriented ReRAM coordinate. Scale capacity by adding banks rather than increasing the local dot-product dimension.</p>
+              <p class="sim-boundary">Research boundary: the MRAM, ReRAM, and FeFET anchors and the ResNet-20/CIFAR-10 reference points come from the case study. The custom profile, multi-bank scheduling, and intermediate slider values are illustrative; replace them with measured device parameters and use the behavioral model for research-grade results.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading"><p class="section-kicker">What the explorer preserves</p><h2>One accuracy limit, three system decisions.</h2></div>
+          <div class="principle-grid">
+            <article class="principle-card"><span>1</span><h3>Protect local SNDR</h3><p>Device conductance, variation, wire parasitics, sensing mismatch, and ADC behavior determine the quality of each bank-level dot product.</p></article>
+            <article class="principle-card"><span>2</span><h3>Replicate small banks</h3><p>A workload dimension larger than N is partitioned across banks. More physical banks reduce mapping waves without increasing the local analog dimension.</p></article>
+            <article class="principle-card"><span>3</span><h3>Reduce digitally</h3><p>The parallel pipeline digitizes local outputs before combining partial sums, keeping system scaling separate from the bank-level analog accuracy estimate.</p></article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="index.html"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a><p>From local eNVM non-idealities to a multi-bank parallel pipeline and its estimated accuracy.</p><a class="footer-link" href="method.html">Review the method →</a></div></footer>
+  </body>
+</html>

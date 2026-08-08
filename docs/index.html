@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="A device-agnostic method for analyzing, optimizing, and scaling resistive parallel-bar in-memory-computing architectures." />
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+    <title>Parallel-bar IMC · Device-Agnostic Design Method</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><div class="container header-inner"><a class="brand" href="index.html"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button><nav id="site-nav" class="site-nav" aria-label="Parallel-bar design method"><a href="index.html" aria-current="page">Overview</a><a href="method.html">Method</a><a href="architect.html">Architect</a><a href="cartoon.html">Cartoon</a><a href="code.html">Model</a><a href="paper.html">Case study</a><a class="nav-repository" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></nav><a class="header-repo" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></div></header>
+
+    <main id="main">
+      <section class="page-hero route-hero"><div class="container page-hero-grid"><div><p class="eyebrow red">A device-agnostic parallel-bar method</p><h1>Four constraint maps point to the <span class="accent-red">highest-accuracy operating region.</span></h1><p class="hero-summary">Every eNVM device follows a different route, but the same four constraint models—device, array, sensing, and conversion—must converge before a parallel-bar fabric can reach its highest useful SNDR.</p><div class="hero-actions"><a class="button button-red" href="method.html">Open the design method</a><a class="button button-secondary" href="architect.html">Build a multi-bank IMC</a></div></div>
+        <aside class="convergence-map" aria-label="Four distinct red technical cuboids for device, array, sensing, and ADC constraints, with directional paths converging on one high-SNDR operating point">
+          <div class="convergence-map-head"><span>Four independent constraint maps</span><strong>One shared coordinate</strong></div>
+          <div class="convergence-field">
+            <div class="guide-node guide-device"><span class="road-cube cube-device" aria-hidden="true"><span class="cube-symbol device-symbol"><i></i></span></span><span class="guide-copy"><strong>Device</strong><small>Conductance + variation</small></span></div>
+            <div class="guide-node guide-array"><span class="road-cube cube-array" aria-hidden="true"><span class="cube-symbol array-symbol"><i></i><i></i><i></i></span></span><span class="guide-copy"><strong>Array</strong><small>Dimension + parasitics</small></span></div>
+            <div class="guide-node guide-sensing"><span class="road-cube cube-sensing" aria-hidden="true"><span class="cube-symbol sensing-symbol"><i></i></span></span><span class="guide-copy"><strong>Sensing</strong><small>Mismatch + analog noise</small></span></div>
+            <div class="guide-node guide-conversion"><span class="road-cube cube-adc" aria-hidden="true"><span class="cube-symbol adc-symbol"><i></i></span></span><span class="guide-copy"><strong>ADC</strong><small>Range + quantization</small></span></div>
+            <span class="route-vector vector-device" aria-hidden="true"></span><span class="route-vector vector-array" aria-hidden="true"></span><span class="route-vector vector-sensing" aria-hidden="true"></span><span class="route-vector vector-conversion" aria-hidden="true"></span>
+            <div class="convergence-target"><span>Converged design coordinate</span><strong>High-SNDR<br />operating point</strong><small>Optimize locally. Then scale by banks.</small></div>
+          </div>
+          <p class="convergence-note">The four maps are different, but every path must terminate at the same viable operating region.</p>
+        </aside>
+      </section>
+
+      <section class="section section-tint"><div class="container"><div class="section-heading"><p class="section-kicker red">Reusable technique</p><h2>Analyze any parallel-bar device in the same order.</h2><p>The method separates universal steps from device-specific numerical parameters, so a new memory technology changes the inputs—not the reasoning workflow.</p></div><div class="principle-grid"><article class="principle-card"><span>1</span><h3>Parameterize the device</h3><p>Insert its on/off conductance, conductance contrast, state variation, read voltage, and energy assumptions.</p></article><article class="principle-card"><span>2</span><h3>Solve the local limit</h3><p>Propagate array, sensing, and ADC non-idealities until the total current-distribution SNDR is known.</p></article><article class="principle-card"><span>3</span><h3>Scale without hiding error</h3><p>Keep each local bank near its useful dimension, then map large workloads across banks and reduce digitally.</p></article></div></div></section>
+
+      <section class="section"><div class="container"><div class="section-heading"><p class="section-kicker">Device families</p><h2>Different devices change the route, not the four coordinates.</h2><p>These are example regimes rather than an exhaustive device list. The same technique also applies to a custom eNVM characterized by its measured conductance and noise behavior.</p></div><div class="device-family-grid"><article class="device-family-card"><span>MRAM</span><h3>High-conductance regime</h3><p>Give extra attention to conductance contrast, wire parasitics, and the achievable current range.</p></article><article class="device-family-card"><span>ReRAM</span><h3>Balanced-conductance regime</h3><p>Evaluate variation and array scaling together; lower conductance can preserve useful separation.</p></article><article class="device-family-card"><span>FeFET</span><h3>High-contrast regime</h3><p>High contrast helps, but sensing and conversion eventually set the remaining SNDR ceiling.</p></article><article class="device-family-card"><span>Custom eNVM</span><h3>Measured-device regime</h3><p>Replace the device block with measured conductance, variation, energy, and readout parameters.</p></article></div></div></section>
+
+      <section class="section section-tint"><div class="container"><div class="result-banner red"><div class="result-number">2024</div><div><h2>A measured case study of the general method</h2><p>The JxCDC work instantiates the technique for MRAM, ReRAM, and FeFET, validates the behavioral output against a 22 nm MRAM prototype, and connects SNDR to ResNet-20 accuracy.</p><a class="text-link" href="paper.html">Open the JxCDC case study →</a></div></div></div></section>
+    </main>
+
+    <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="index.html"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a><p>Four constraint maps, one optimized local bank, and a scalable multi-bank fabric.</p><a class="footer-link" href="method.html">Open the method →</a></div></footer>
+  </body>
+</html>

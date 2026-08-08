@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Build the resistive IMC current-distribution cartoon one non-ideality at a time, from ideal current levels to ADC thermal noise." />
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+    <title>Current-distribution Cartoon · Parallel-bar IMC</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Parallel-bar IMC overview"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+        <nav id="site-nav" class="site-nav" aria-label="Parallel-bar design method"><a href="index.html">Overview</a><a href="method.html">Method</a><a href="architect.html">Architect</a><a href="cartoon.html" aria-current="page">Cartoon</a><a href="code.html">Model</a><a href="paper.html">Case study</a><a class="nav-repository" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></nav>
+        <a class="header-repo" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="page-hero cartoon-hero">
+        <div class="container page-hero-grid">
+          <div>
+            <p class="eyebrow red">Method · Distribution cartoon</p>
+            <h1>Watch each non-ideality <span class="accent-green">reshape the current.</span></h1>
+            <p class="hero-summary">Begin with discrete ideal column-current levels. Add device variation, parasitics, sensing mismatch, and ADC thermal noise one at a time to see how separation collapses and compute SNDR falls.</p>
+            <div class="hero-actions"><a class="button button-green" href="#cartoon-stepper">Build it step by step</a><a class="button button-secondary" href="architect.html">Return to the chip architect</a></div>
+          </div>
+          <figure class="cartoon-loop">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="assets/histogram-cartoon/step-1.png" />
+              <img src="assets/histogram-cartoon/histogram-nonidealities.gif" alt="Seven-stage animation showing ideal column-current levels broadening under conductance variation, parasitic conductance, current-mirror mismatch, and ADC thermal noise." />
+            </picture>
+            <figcaption><strong>Seven-stage build.</strong> The animation follows the mechanism sequence from the source cartoon.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section-tint" aria-labelledby="cartoon-title">
+        <div class="container">
+          <div class="section-heading"><p class="section-kicker green">One mechanism at a time</p><h2 id="cartoon-title">Build the distribution, then inspect where margin disappears.</h2><p>Choose a numbered stage, move forward manually, or play the full sequence. The drawing and explanation change together.</p></div>
+
+          <div class="cartoon-stepper" id="cartoon-stepper">
+            <div class="cartoon-step-tabs" role="tablist" aria-label="Current-distribution build stages">
+              <button id="cartoon-tab-1" type="button" role="tab" aria-selected="true" aria-controls="cartoon-panel" data-cartoon-step="0"><span>01</span>Ideal</button>
+              <button id="cartoon-tab-2" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="1"><span>02</span>Variation</button>
+              <button id="cartoon-tab-3" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="2"><span>03</span>Small parasitics</button>
+              <button id="cartoon-tab-4" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="3"><span>04</span>Typical parasitics</button>
+              <button id="cartoon-tab-5" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="4"><span>05</span>Limiting parasitics</button>
+              <button id="cartoon-tab-6" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="5"><span>06</span>Sense mismatch</button>
+              <button id="cartoon-tab-7" type="button" role="tab" aria-selected="false" aria-controls="cartoon-panel" data-cartoon-step="6"><span>07</span>ADC noise</button>
+            </div>
+
+            <div class="cartoon-panel" id="cartoon-panel" role="tabpanel" aria-labelledby="cartoon-tab-1">
+              <div class="cartoon-frame"><img id="cartoon-step-image" src="assets/histogram-cartoon/step-1.png" alt="Ideal discrete column-current levels separated by I step across the full-range current." /></div>
+              <div class="cartoon-copy" aria-live="polite">
+                <p class="cartoon-count" id="cartoon-step-count">Step 1 of 7 · Reference</p>
+                <h3 id="cartoon-step-title">Begin with ideal current levels.</h3>
+                <p id="cartoon-step-copy">Each dot-product code maps to a discrete column-current level. The spacing I<sub>step</sub> and the full-range current I<sub>FR</sub> define the clean reference before non-idealities.</p>
+                <div class="cartoon-reading"><span>What changes</span><strong id="cartoon-step-change">Nothing yet—the levels are discrete.</strong></div>
+              </div>
+            </div>
+
+            <div class="cartoon-controls" aria-label="Cartoon playback controls">
+              <button class="button button-secondary" id="cartoon-prev" type="button">← Previous</button>
+              <button class="button button-green" id="cartoon-play" type="button" aria-pressed="false">Play sequence</button>
+              <button class="button button-secondary" id="cartoon-next" type="button">Next →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading"><p class="section-kicker">Design reading</p><h2>The distributions connect local physics to system accuracy.</h2></div>
+          <div class="principle-grid cartoon-principles">
+            <article class="principle-card"><span>1</span><h3>Separate</h3><p>Ideal current spacing creates the analog margin available to distinguish neighboring dot-product codes.</p></article>
+            <article class="principle-card"><span>2</span><h3>Distort</h3><p>Device, array, and sensing non-idealities shift, compress, and broaden the code distributions.</p></article>
+            <article class="principle-card"><span>3</span><h3>Measure</h3><p>The remaining separation at the ADC determines the usable SNDR and, ultimately, inference accuracy.</p></article>
+          </div>
+          <div class="cartoon-cta"><p>Use this mechanism chain to interpret the coordinates in the multi-bank explorer.</p><a class="button button-green" href="architect.html#architect-lab">Apply the limits to the chip →</a></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="index.html"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a><p>From discrete current levels to overlapping distributions and the system-level accuracy limit.</p><a class="footer-link" href="method.html">Return to the four coordinates →</a></div></footer>
+  </body>
+</html>
