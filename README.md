@@ -1,10 +1,12 @@
-# eNVM-IMC-Modeling
+# Behavioral model for eNVM-based IMCs
 
 Behavioral SNDR modeling and measured validation for parallel-bar resistive in-memory computing across MRAM, ReRAM, and FeFET.
 
 [Interactive website](https://calmyor.github.io/eNVM-IMC-Modeling/) · [JxCDC 2024 paper](https://doi.org/10.1109/JXCDC.2024.3381888) · [MIT License](LICENSE.txt)
 
-![Parallel-bar resistive IMC architecture](docs/assets/figures/parallelbar-architecture.png)
+<p align="center">
+  <img src="docs/assets/figures/parallelbar-architecture.png" alt="Parallel-bar resistive IMC architecture" width="560">
+</p>
 
 ## Overview
 
