@@ -420,6 +420,11 @@ h1, h2, h3, h4 { font-weight: 500; }
 .cartoon-panel { min-height: 470px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(310px, .65fr); align-items: stretch; }
 .cartoon-frame { padding: 28px; display: grid; place-items: center; border-right: 1px solid var(--line); background: #fff; }
 .cartoon-frame img { width: 100%; max-height: 460px; display: block; object-fit: contain; }
+.cartoon-frame img { grid-area: 1 / 1; height: auto; }
+.cartoon-frame .cartoon-fade { opacity: 0; pointer-events: none; }
+.cartoon-frame .cartoon-fade.is-fading { animation: cartoon-fade-out .42s ease forwards; }
+@keyframes cartoon-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cartoon-frame .cartoon-fade.is-fading { animation: none; } }
 .cartoon-copy { padding: clamp(30px, 4vw, 52px); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(160deg, var(--green-light), #fff 72%); }
 .cartoon-count { margin: 0 0 14px; color: var(--green-dark); font-size: var(--text-xs); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .cartoon-copy h3 { margin: 0 0 16px; font-size: var(--text-xl); line-height: 1.08; letter-spacing: -.035em; }
@@ -859,8 +864,8 @@ body::after {
 
 /* Standalone parallel-bar identity */
 .site-nav a[aria-current="page"] { background: var(--green); box-shadow: 0 4px 12px rgba(40,118,111,.22); }
-.site-nav a[href="cartoon.html"]::before, .site-nav a[href="index.html#paper"]::before { content: ""; width: 19px; height: 19px; flex-shrink: 0; border: 1px solid var(--line-dark); border-radius: 4px; background-color: #fff; }
-.site-nav a[href="cartoon.html"]::before { background-image: linear-gradient(0deg, transparent 72%, #7b93eb 72%), linear-gradient(90deg, #ef777b 0 18%, transparent 18% 27%, #d97775 27% 45%, transparent 45% 55%, #70c3df 55% 73%, transparent 73% 82%, #6686e7 82%); }
+.site-nav a[href="non-idealities.html"]::before, .site-nav a[href="index.html#paper"]::before { content: ""; width: 19px; height: 19px; flex-shrink: 0; border: 1px solid var(--line-dark); border-radius: 4px; background-color: #fff; }
+.site-nav a[href="non-idealities.html"]::before { background-image: linear-gradient(0deg, transparent 72%, #7b93eb 72%), linear-gradient(90deg, #ef777b 0 18%, transparent 18% 27%, #d97775 27% 45%, transparent 45% 55%, #70c3df 55% 73%, transparent 73% 82%, #6686e7 82%); }
 .site-nav a[href="index.html#paper"]::before { background-image: linear-gradient(var(--gold), var(--gold)), linear-gradient(var(--stone), var(--stone)), linear-gradient(var(--stone), var(--stone)); background-size: 3px 11px, 7px 2px, 7px 2px; background-position: 3px center, 8px 5px, 8px 10px; background-repeat: no-repeat; }
 
 @media (max-width: 1160px) {

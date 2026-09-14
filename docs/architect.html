@@ -16,7 +16,7 @@
       <div class="container header-inner">
         <a class="brand" href="index.html" aria-label="Parallel-bar IMC overview"><span class="architecture-icon parallelbar-icon brand-architecture-icon" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b><em></em></span><span><strong>Parallel-bar IMC</strong><small>Device-agnostic design method</small></span></a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-        <nav id="site-nav" class="site-nav" aria-label="Parallel-bar design method"><a href="index.html">Overview</a><a href="method.html">Method</a><a href="architect.html" aria-current="page">Architect</a><a href="cartoon.html">Cartoon</a><a href="code.html">Model</a><a href="paper.html">Case study</a><a class="nav-repository" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></nav>
+        <nav id="site-nav" class="site-nav" aria-label="Parallel-bar design method"><a href="index.html">Overview</a><a href="method.html">Method</a><a href="architect.html" aria-current="page">Architect</a><a href="non-idealities.html">Non-idealities</a><a href="code.html">Model</a><a href="paper.html">Case study</a><a class="nav-repository" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a></nav>
         <a class="header-repo" href="https://github.com/calmyor/eNVM-IMC-Modeling">Repository <span aria-hidden="true">↗</span></a>
       </div>
     </header>
@@ -42,15 +42,15 @@
       <section class="section cartoon-teaser-section">
         <div class="container cartoon-teaser">
           <div class="content-copy">
-            <p class="section-kicker green">Build the error story</p>
+            <p class="section-kicker green">Error mechanisms</p>
             <h2>See how ideal current levels become overlapping distributions.</h2>
-            <p>A seven-stage cartoon introduces conductance variation, parasitics, sensing mismatch, and ADC noise one at a time, then connects the remaining separation to the SNDR used below.</p>
-            <a class="button button-green" href="cartoon.html">Watch the step-by-step cartoon →</a>
+            <p>Seven column-current distributions add conductance variation, wire parasitics, current-mirror mismatch, and ADC noise one at a time, then connect the remaining separation to the SNDR used below.</p>
+            <a class="button button-green" href="non-idealities.html">Step through the non-idealities →</a>
           </div>
-          <a class="cartoon-teaser-media" href="cartoon.html" aria-label="Open the step-by-step current-distribution cartoon">
+          <a class="cartoon-teaser-media" href="non-idealities.html" aria-label="Open the step-by-step non-ideality breakdown">
             <picture>
-              <source media="(prefers-reduced-motion: reduce)" srcset="assets/histogram-cartoon/step-7.png" />
-              <img src="assets/histogram-cartoon/histogram-nonidealities.gif" alt="Animated current distributions broadening as resistive IMC non-idealities are added." />
+              <source media="(prefers-reduced-motion: reduce)" srcset="assets/current-distributions/step-7.svg" />
+              <img src="assets/current-distributions/distribution-sequence.gif" alt="Animated current distributions broadening as resistive IMC non-idealities are added." />
             </picture>
             <span>Open all seven stages <b aria-hidden="true">↗</b></span>
           </a>

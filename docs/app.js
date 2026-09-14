@@ -261,7 +261,7 @@ if (cartoonStepper) {
       title: "Begin with ideal current levels.",
       copy: "Each dot-product code maps to a discrete column-current level. The spacing I_step and the full-range current I_FR define the clean reference before non-idealities.",
       change: "Nothing yet. The levels are still discrete.",
-      image: "assets/histogram-cartoon/step-1.png",
+      image: "assets/current-distributions/step-1.svg",
       alt: "Ideal discrete column-current levels separated by I step across the full-range current."
     },
     {
@@ -269,15 +269,15 @@ if (cartoonStepper) {
       title: "Device variation broadens every code.",
       copy: "Random off- and on-state conductance variation turns each ideal current into a distribution. Neighboring codes remain distinguishable only while their spreads stay below their spacing.",
       change: "Discrete levels become narrow distributions.",
-      image: "assets/histogram-cartoon/step-2.png",
+      image: "assets/current-distributions/step-2.svg",
       alt: "Column-current levels broadened into narrow distributions by conductance variation."
     },
     {
       label: "Step 3 of 7 · Array",
       title: "Small parasitics shift levels without destroying separation.",
-      copy: "At a smaller local dimension, parasitic conductance introduces nonlinearity, but the output levels remain narrow and separated.",
+      copy: "At a small local dimension or low conductance, parasitic conductance barely shifts the levels, and the variation-broadened distributions stay separated.",
       change: "The range shifts, while code margin survives.",
-      image: "assets/histogram-cartoon/step-3.png",
+      image: "assets/current-distributions/step-3.svg",
       alt: "Current distributions under a less-dominant parasitic-conductance regime."
     },
     {
@@ -285,7 +285,7 @@ if (cartoonStepper) {
       title: "Typical parasitics compress and reshape the current range.",
       copy: "Wire parasitics make the level spacing position dependent: left, middle, and right regions no longer share the same separation.",
       change: "Spacing becomes nonuniform across the range.",
-      image: "assets/histogram-cartoon/step-4.png",
+      image: "assets/current-distributions/step-4.svg",
       alt: "Current distributions with nonuniform left, middle, and right spacing under typical parasitics."
     },
     {
@@ -293,23 +293,23 @@ if (cartoonStepper) {
       title: "Strong parasitics make neighboring distributions overlap.",
       copy: "As the equivalent conductance approaches its limiting behavior, the usable current range compresses and distinct dot-product codes become harder to resolve.",
       change: "The narrowest local spacing becomes the limit.",
-      image: "assets/histogram-cartoon/step-5.png",
+      image: "assets/current-distributions/step-5.svg",
       alt: "Overlapping current distributions under a limiting parasitic-conductance regime."
     },
     {
       label: "Step 6 of 7 · Sensing",
       title: "Sensing mismatch adds state-dependent spread.",
-      copy: "Current-mirror mismatch broadens the sensed distributions after the array. The left, middle, and right regions experience different output variance.",
+      copy: "Current-mirror mismatch then adds a spread that grows with the sensed current, so the high-current codes on the right widen the most.",
       change: "Distribution width now depends on current level.",
-      image: "assets/histogram-cartoon/step-6.png",
+      image: "assets/current-distributions/step-6.svg",
       alt: "Current distributions with different widths caused by current-mirror sensing mismatch."
     },
     {
       label: "Step 7 of 7 · Conversion",
       title: "ADC thermal noise broadens every level before quantization.",
-      copy: "A fixed readout-noise floor spreads each current code at the conversion boundary, reducing the margin available to clipping and quantization.",
+      copy: "ADC thermal noise adds the same spread to every code, including the lowest-current levels, and removes most of the remaining margin before quantization.",
       change: "The final readout margin sets usable SNDR.",
-      image: "assets/histogram-cartoon/step-7.png",
+      image: "assets/current-distributions/step-7.svg",
       alt: "Broad current-code distributions after ADC thermal noise is added before quantization."
     }
   ];
@@ -327,9 +327,35 @@ if (cartoonStepper) {
   let activeStep = 0;
   let playback = null;
 
-  steps.forEach((step) => {
-    new Image().src = step.image;
+  // Phones get a taller drawing of each stage with larger labels.
+  const narrowScreen = window.matchMedia("(max-width: 760px)");
+  const imageFor = (step) => (narrowScreen.matches ? step.image.replace(".svg", "-narrow.svg") : step.image);
+  const preloadImages = () => steps.forEach((step) => {
+    new Image().src = imageFor(step);
   });
+  preloadImages();
+
+  // Every diagram shares one frame, so fade the previous drawing out over the next one.
+  const fade = document.createElement("img");
+  fade.className = "cartoon-fade";
+  fade.alt = "";
+  fade.setAttribute("aria-hidden", "true");
+  fade.width = image.width;
+  fade.height = image.height;
+  image.after(fade);
+
+  function showImage(step, animate) {
+    const current = image.getAttribute("src");
+    const next = imageFor(step);
+    if (animate && current !== next) {
+      fade.src = current;
+      fade.classList.remove("is-fading");
+      void fade.offsetWidth;
+      fade.classList.add("is-fading");
+    }
+    image.src = next;
+    image.alt = step.alt;
+  }
 
   // Render the current symbols I_step and I_FR with real subscripts.
   function setCopy(element, text) {
@@ -345,11 +371,10 @@ if (cartoonStepper) {
     element.replaceChildren(...nodes);
   }
 
-  function renderCartoonStep(index, moveFocus = false) {
+  function renderCartoonStep(index, moveFocus = false, animate = true) {
     activeStep = (index + steps.length) % steps.length;
     const step = steps[activeStep];
-    image.src = step.image;
-    image.alt = step.alt;
+    showImage(step, animate);
     count.textContent = step.label;
     title.textContent = step.title;
     setCopy(copy, step.copy);
@@ -405,5 +430,9 @@ if (cartoonStepper) {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopCartoonPlayback();
   });
-  renderCartoonStep(0);
+  narrowScreen.addEventListener("change", () => {
+    preloadImages();
+    renderCartoonStep(activeStep, false, false);
+  });
+  renderCartoonStep(0, false, false);
 }
