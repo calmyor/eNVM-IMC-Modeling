@@ -825,6 +825,13 @@ body::after {
   .site-nav a:focus-visible,
   .site-nav a[aria-current="page"] { background: transparent; color: var(--red-dark); }
   .site-nav .nav-repository { display: none; }
+  .site-nav.nav-more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); }
+  .site-nav.nav-more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px); mask-image: linear-gradient(90deg, transparent, #000 48px); }
+  .site-nav.nav-more-left.nav-more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
+}
+
+@media (pointer: coarse) {
+  .range-field input { min-height: 44px; }
 }
 
 @media (max-width: 760px) {

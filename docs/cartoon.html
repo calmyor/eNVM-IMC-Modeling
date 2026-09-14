@@ -27,7 +27,7 @@
           <div>
             <p class="eyebrow red">Method · Distribution cartoon</p>
             <h1>Watch each non-ideality <span class="accent-green">reshape the current.</span></h1>
-            <p class="hero-summary">Begin with discrete ideal column-current levels. Add device variation, parasitics, sensing mismatch, and ADC thermal noise one at a time to see how separation collapses and compute SNDR falls.</p>
+            <p class="hero-summary">Begin with discrete ideal column-current levels. Add device variation, parasitics, sensing mismatch, and ADC thermal noise one at a time to see the separation between levels collapse and the SNDR fall.</p>
             <div class="hero-actions"><a class="button button-green" href="#cartoon-stepper">Build it step by step</a><a class="button button-secondary" href="architect.html">Return to the chip architect</a></div>
           </div>
           <figure class="cartoon-loop">
@@ -61,13 +61,13 @@
                 <p class="cartoon-count" id="cartoon-step-count">Step 1 of 7 · Reference</p>
                 <h3 id="cartoon-step-title">Begin with ideal current levels.</h3>
                 <p id="cartoon-step-copy">Each dot-product code maps to a discrete column-current level. The spacing I<sub>step</sub> and the full-range current I<sub>FR</sub> define the clean reference before non-idealities.</p>
-                <div class="cartoon-reading"><span>What changes</span><strong id="cartoon-step-change">Nothing yet—the levels are discrete.</strong></div>
+                <div class="cartoon-reading"><span>What changes</span><strong id="cartoon-step-change">Nothing yet. The levels are still discrete.</strong></div>
               </div>
             </div>
 
             <div class="cartoon-controls" aria-label="Cartoon playback controls">
               <button class="button button-secondary" id="cartoon-prev" type="button">← Previous</button>
-              <button class="button button-green" id="cartoon-play" type="button" aria-pressed="false">Play sequence</button>
+              <button class="button button-green" id="cartoon-play" type="button">Play sequence</button>
               <button class="button button-secondary" id="cartoon-next" type="button">Next →</button>
             </div>
           </div>
@@ -80,7 +80,7 @@
           <div class="principle-grid cartoon-principles">
             <article class="principle-card"><span>1</span><h3>Separate</h3><p>Ideal current spacing creates the analog margin available to distinguish neighboring dot-product codes.</p></article>
             <article class="principle-card"><span>2</span><h3>Distort</h3><p>Device, array, and sensing non-idealities shift, compress, and broaden the code distributions.</p></article>
-            <article class="principle-card"><span>3</span><h3>Measure</h3><p>The remaining separation at the ADC determines the usable SNDR and, ultimately, inference accuracy.</p></article>
+            <article class="principle-card"><span>3</span><h3>Measure</h3><p>The separation remaining at the ADC determines the usable SNDR, thereby bounding the inference accuracy.</p></article>
           </div>
           <div class="cartoon-cta"><p>Use this mechanism chain to interpret the coordinates in the multi-bank explorer.</p><a class="button button-green" href="architect.html#architect-lab">Apply the limits to the chip →</a></div>
         </div>

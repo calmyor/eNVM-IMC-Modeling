@@ -40,6 +40,24 @@ if (menuButton && siteNav) {
   });
 }
 
+if (siteNav) {
+  // On narrow screens the nav is a horizontal strip; fade whichever edge still has links beyond it.
+  const updateNavCue = () => {
+    const hiddenRight = siteNav.scrollWidth - siteNav.clientWidth - siteNav.scrollLeft;
+    siteNav.classList.toggle("nav-more-left", siteNav.scrollLeft > 4);
+    siteNav.classList.toggle("nav-more-right", hiddenRight > 4);
+  };
+
+  const currentLink = siteNav.querySelector('[aria-current="page"]');
+  if (currentLink && siteNav.scrollWidth > siteNav.clientWidth) {
+    siteNav.scrollLeft = Math.max(0, currentLink.offsetLeft - siteNav.offsetLeft - 48);
+  }
+
+  siteNav.addEventListener("scroll", updateNavCue, { passive: true });
+  window.addEventListener("resize", updateNavCue);
+  updateNavCue();
+}
+
 const architectForm = document.querySelector("#architect-form");
 
 if (architectForm) {
@@ -64,30 +82,44 @@ if (architectForm) {
     adcNoise: document.querySelector("#sim-adc-noise-value")
   };
 
+  // Maximum SNDR_d (dB) for B_ADC = 2..10 at N = 64, from SNDR-sim/SNDRd-vs-BADC (paper Fig. 6c).
+  const adcSweeps = {
+    mram: [3.35, 5.52, 6.16, 6.22, 6.18, 6.13, 6.1, 6.08, 6.08],
+    reram: [4.45, 9.5, 13.79, 16.31, 17.41, 17.68, 17.72, 17.73, 17.81],
+    fefet: [4.46, 9.56, 13.95, 16.61, 17.79, 18.08, 18.07, 18.12, 18.21]
+  };
+
+  // baseSndr: SNDR_d anchors at B_ADC = 7 from the case study's ResNet-20 accuracy analysis.
   const profiles = {
     mram: {
       name: "MRAM",
       baseSndr: { 9: 13, 36: 12, 72: 11 },
-      adcSaturation: 4
+      adcSweep: adcSweeps.mram
     },
     reram: {
       name: "ReRAM",
       baseSndr: { 9: 22, 36: 20, 72: 18.5 },
-      adcSaturation: 6
+      adcSweep: adcSweeps.reram
     },
     fefet: {
       name: "FeFET",
       baseSndr: { 9: 20, 36: 21, 72: 19.5 },
-      adcSaturation: 6
+      adcSweep: adcSweeps.fefet
     },
     custom: {
       name: "Custom eNVM",
       baseSndr: { 9: 18, 36: 17, 72: 16 },
-      adcSaturation: 6
+      adcSweep: adcSweeps.reram
     }
   };
 
+  const anchorBits = 7;
+  const nominal = { variation: 4, wire: 25, mismatch: 5, adcNoise: 20 };
+
   const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+
+  // SNDR_d lost (or gained) relative to the 7 b anchor, following the modeled ADC-precision sweep.
+  const adcLoss = (sweep, bits) => sweep[anchorBits - 2] - sweep[bits - 2];
 
   function accuracyFromSndr(sndr) {
     if (sndr <= 8) return 10;
@@ -100,7 +132,7 @@ if (architectForm) {
     const bankGrid = document.querySelector("#sim-bank-grid");
     const visibleBanks = Math.min(24, physicalBanks);
     const activeBanks = Math.min(requiredBanks, physicalBanks);
-    const activeVisible = Math.round(visibleBanks * activeBanks / physicalBanks);
+    const activeVisible = activeBanks ? Math.max(1, Math.round(visibleBanks * activeBanks / physicalBanks)) : 0;
     const fragment = document.createDocumentFragment();
 
     for (let index = 0; index < visibleBanks; index += 1) {
@@ -119,6 +151,11 @@ if (architectForm) {
       : `Showing all ${physicalBanks} physical banks`;
   }
 
+  function showValue(key, display, spoken = display) {
+    outputs[key].textContent = display;
+    controls[key].setAttribute("aria-valuetext", spoken);
+  }
+
   function evaluateArchitecture() {
     const device = controls.device.value;
     const profile = profiles[device];
@@ -131,24 +168,23 @@ if (architectForm) {
     const mismatch = Number(controls.mismatch.value);
     const adcNoise = Number(controls.adcNoise.value);
 
-    outputs.banks.textContent = String(physicalBanks);
-    outputs.adcBits.textContent = `${adcBits} b`;
-    outputs.variation.textContent = `${variation}%`;
-    outputs.wire.textContent = `${wire}%`;
-    outputs.mismatch.textContent = `${mismatch}%`;
-    outputs.adcNoise.textContent = `${adcNoise}%`;
+    showValue("banks", String(physicalBanks), `${physicalBanks} banks`);
+    showValue("adcBits", `${adcBits} b`, `${adcBits} bits`);
+    showValue("variation", `${variation}%`);
+    showValue("wire", `${wire}%`);
+    showValue("mismatch", `${mismatch}%`);
+    showValue("adcNoise", `${adcNoise}%`);
 
-    const adcPenalty = Math.max(0, profile.adcSaturation - adcBits) * 2;
     const penalties = {
-      variation: (variation - 5) * 0.15,
-      wire: (wire - 25) * 0.03,
-      mismatch: (mismatch - 2) * 0.28,
-      adcNoise: (adcNoise - 20) * 0.025,
-      conversion: adcPenalty
+      variation: (variation - nominal.variation) * 0.15,
+      wire: (wire - nominal.wire) * 0.03,
+      mismatch: (mismatch - nominal.mismatch) * 0.28,
+      adcNoise: (adcNoise - nominal.adcNoise) * 0.025,
+      conversion: adcLoss(profile.adcSweep, adcBits)
     };
     const totalPenalty = Object.values(penalties).reduce((total, value) => total + value, 0);
-    const sndr = clamp(profile.baseSndr[bankN] - totalPenalty, 6, 22);
-    const accuracy = clamp(accuracyFromSndr(sndr), 10, 84.5);
+    const sndr = clamp(profile.baseSndr[bankN] - totalPenalty, 0, 22);
+    const accuracy = accuracyFromSndr(sndr);
     const requiredBanks = Math.ceil(workload / bankN);
     const waves = Math.ceil(requiredBanks / physicalBanks);
 
@@ -160,7 +196,7 @@ if (architectForm) {
       ? "Illustrative accuracy proxy"
       : "Illustrative CIFAR-10 accuracy";
     document.querySelector("#sim-waves").textContent = String(waves);
-    document.querySelector("#sim-mapping").textContent = `${workload.toLocaleString()} operations map to ${requiredBanks} banks of dimension ${bankN} in ${waves} parallel ${waves === 1 ? "wave" : "waves"}.`;
+    document.querySelector("#sim-mapping").textContent = `${workload.toLocaleString()} vector elements map to ${requiredBanks} banks of dimension ${bankN} in ${waves === 1 ? "one parallel wave" : `${waves} parallel waves`}.`;
 
     let status = "Below accuracy target";
     let statusClass = "status-low";
@@ -180,18 +216,21 @@ if (architectForm) {
     const labels = {
       variation: "conductance variation",
       wire: "wire parasitics",
-      mismatch: "sensing mismatch",
-      adcNoise: "ADC noise",
-      conversion: "insufficient ADC precision"
+      mismatch: "current-mirror mismatch",
+      adcNoise: "ADC noise"
     };
 
     let advice;
     if (sndr >= 21.5 && device === "reram" && bankN === 9) {
       advice = "This point reaches the reported accuracy-oriented ReRAM coordinate. Scale capacity by adding banks rather than increasing the local dot-product dimension.";
+    } else if (sndr >= 21.5) {
+      advice = "This point reaches the 22 dB accuracy-oriented reference. Scale capacity by adding banks rather than increasing the local dot-product dimension.";
     } else if (waves > 1 && sndr >= 18) {
       advice = `The local bank remains usable, but the workload needs ${waves} mapping waves. Add physical banks to improve throughput without increasing local N.`;
+    } else if (dominant === "conversion") {
+      advice = "The dominant adjustable limit is insufficient ADC precision. Add ADC bits before changing the local bank dimension.";
     } else if (dominant) {
-      advice = `The dominant adjustable limit is ${labels[dominant]}. Reduce it before adding conversion precision or increasing the local bank dimension.`;
+      advice = `The dominant adjustable limit is ${labels[dominant]}. Reduce it before adding ADC precision or increasing the local bank dimension.`;
     } else if (device === "custom") {
       advice = "This normalized custom-device profile is illustrative. Replace its conductance, variation, parasitic, sensing, and ADC assumptions with measured values before drawing a device-specific conclusion.";
     } else if (bankN > 9) {
@@ -199,7 +238,9 @@ if (architectForm) {
     } else {
       advice = "This device remains below the 22 dB accuracy-oriented reference. Compare a lower-conductance ReRAM bank or reduce the active non-idealities.";
     }
-    document.querySelector("#sim-advice").innerHTML = `<strong>Design reading:</strong> ${advice}`;
+    const lead = document.createElement("strong");
+    lead.textContent = "Design reading:";
+    document.querySelector("#sim-advice").replaceChildren(lead, ` ${advice}`);
   }
 
   architectForm.addEventListener("submit", (event) => {
@@ -219,7 +260,7 @@ if (cartoonStepper) {
       label: "Step 1 of 7 · Reference",
       title: "Begin with ideal current levels.",
       copy: "Each dot-product code maps to a discrete column-current level. The spacing I_step and the full-range current I_FR define the clean reference before non-idealities.",
-      change: "Nothing yet—the levels are discrete.",
+      change: "Nothing yet. The levels are still discrete.",
       image: "assets/histogram-cartoon/step-1.png",
       alt: "Ideal discrete column-current levels separated by I step across the full-range current."
     },
@@ -286,6 +327,24 @@ if (cartoonStepper) {
   let activeStep = 0;
   let playback = null;
 
+  steps.forEach((step) => {
+    new Image().src = step.image;
+  });
+
+  // Render the current symbols I_step and I_FR with real subscripts.
+  function setCopy(element, text) {
+    const nodes = text.split(/(I_step|I_FR)/).map((part) => {
+      const symbol = part.match(/^I_(step|FR)$/);
+      if (!symbol) return document.createTextNode(part);
+      const fragment = document.createDocumentFragment();
+      const subscript = document.createElement("sub");
+      subscript.textContent = symbol[1];
+      fragment.append("I", subscript);
+      return fragment;
+    });
+    element.replaceChildren(...nodes);
+  }
+
   function renderCartoonStep(index, moveFocus = false) {
     activeStep = (index + steps.length) % steps.length;
     const step = steps[activeStep];
@@ -293,7 +352,7 @@ if (cartoonStepper) {
     image.alt = step.alt;
     count.textContent = step.label;
     title.textContent = step.title;
-    copy.textContent = step.copy;
+    setCopy(copy, step.copy);
     change.textContent = step.change;
     panel.setAttribute("aria-labelledby", tabs[activeStep].id);
     tabs.forEach((tab, tabIndex) => {
@@ -307,7 +366,6 @@ if (cartoonStepper) {
   function stopCartoonPlayback() {
     if (playback) window.clearInterval(playback);
     playback = null;
-    play.setAttribute("aria-pressed", "false");
     play.textContent = "Play sequence";
   }
 
@@ -322,12 +380,12 @@ if (cartoonStepper) {
       renderCartoonStep(index);
     });
     tab.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
       stopCartoonPlayback();
       let target = activeStep;
-      if (event.key === "ArrowLeft") target -= 1;
-      if (event.key === "ArrowRight") target += 1;
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") target -= 1;
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") target += 1;
       if (event.key === "Home") target = 0;
       if (event.key === "End") target = steps.length - 1;
       renderCartoonStep(target, true);
@@ -341,7 +399,6 @@ if (cartoonStepper) {
       stopCartoonPlayback();
       return;
     }
-    play.setAttribute("aria-pressed", "true");
     play.textContent = "Pause sequence";
     playback = window.setInterval(() => renderCartoonStep(activeStep + 1), 2200);
   });
